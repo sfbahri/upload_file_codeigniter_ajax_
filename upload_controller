@@ -1,0 +1,119 @@
+<?php 
+
+function nama_function_insert(){
+
+// ini difungsikan untuk rename nama fieldnya
+		$data['judul_album_add'] = $this->input->post('judul_album_add');
+		$data['field_gambar'] = $this->input->post('field_gambar');
+
+		
+
+		$date                 = date('dmY');
+		$file_name 			  = $date.time().$_FILES["field_gambar"]['name'];
+
+		$config2 = array(
+            'upload_path'   => './assets/gambar/', // <-- nama letak folder untuk penyimpnanan upload
+            'allowed_types' => 'gif|jpg|jpeg|png|iso|dmg|zip|rar|doc|docx|xls|xlsx|ppt|pptx|csv|ods|odt|odp|pdf|rtf|sxc|sxi|txt|exe|avi|mpeg|mp3|mp4|3gp',
+            'max_size'      => 250000,
+            'encrypt_name'  => TRUE, // ini fungsi uttuk encript nama file , jika tidak ingin encrypt silahkan di comment/dinonaktifkan
+            'width'         => 128,
+            'height'        => 128,
+            'file_name'     => $file_name
+            //jika ingin diganti nama silahkan pakai variable $file_name, jika tidak $_FILES["field_gambar"]['name'];
+        );
+        $this->load->library('upload', $config2);
+        $this->upload->do_upload('field_gambar');
+        $images_field    = $this->upload->data(); // <-- ini result dari upload images, file name, full path dll
+        $nama_gambar 	 = $images_field['file_name']; // <-- jika tidak ingin diganti nama fieldnya silahkan diaktifkan yang ini
+        //$nama_file_gambar = $file_name; // <-- aktifkan ini jika ingin diganti nama filenya
+
+
+        //*====== start : fungsi untuk duplikasi =====*
+
+        // ini untuk duplikasi gambar jika , jadi pada saat upload 2 file, yaang 1 asilnya , dan yang 1 ada nama thumnya,
+        // untuk gambar duplikasi ini bisa di atur ukuraan / resolusinya, 
+        // jika tidak ingin ada duplikasi silahkan di nonaktifkan script dibawah ini
+
+        $config2['image_library']    = 'gd2';
+        $config2['source_image']     = './assets/gambar/'.$images_field['file_name'];
+        $config2['create_thumb']     = TRUE;
+        $config2['maintain_ratio']   = TRUE;
+        $config2['width']            = 150;
+        $config2['height']           = 150;
+
+        $this->load->library('image_lib', $config2);
+        $this->image_lib->resize();
+
+        //*====== end : fungsi untuk duplikasi =====*
+
+        // ini fungsi simpan file ke database 
+        $data = $this->file_model->nama_function_model_insert($data,$nama_gambar);
+    	echo json_encode($data);
+
+}
+
+
+
+
+function nama_function_update(){
+
+// ini difungsikan untuk rename nama fieldnya
+		$data['jdl_album_edit'] = $this->input->post('jdl_album_edit');
+		$data['id_album'] = $this->input->post('id_album');
+		$data['gbr_album_edit2'] = $this->input->post('gbr_album_edit2');
+		$date                 = date('dmY');
+		$file_name 			  = $date.time().$_FILES["gbr_album_edit2"]['name'];
+		$nama_gambar;
+
+		// ini fungsi if else jika ada atau tidak ada file yang diupload
+		if($_FILES["gbr_album_edit2"]['name'] !=''){
+		$config1 = array(
+            'upload_path'   => './assets/gambar/', // <-- nama letak folder untuk penyimpnanan upload
+            'allowed_types' => 'gif|jpg|jpeg|png|iso|dmg|zip|rar|doc|docx|xls|xlsx|ppt|pptx|csv|ods|odt|odp|pdf|rtf|sxc|sxi|txt|exe|avi|mpeg|mp3|mp4|3gp',
+            'max_size'      => 250000,
+            'encrypt_name'  => TRUE, // ini fungsi uttuk encript nama file , jika tidak ingin encrypt silahkan di comment/dinonaktifkan
+            'width'         => 128,
+            'height'        => 128,
+            'file_name'     => $file_name 
+            //jika ingin diganti nama silahkan pakai variable $file_name, jika tidak $_FILES["field_gambar"]['name'];
+        );
+        $this->load->library('upload', $config1);
+        $this->upload->do_upload('gbr_album_edit2');
+        $images_field    = $this->upload->data(); // <-- ini result dari upload images, file name, full path dll
+        $nama_gambar 	 = $images_field['file_name']; // <-- jika tidak ingin diganti nama fieldnya silahkan diaktifkan yang ini
+        //$nama_file_gambar = $file_name; // <-- aktifkan ini jika ingin diganti nama filenya
+
+
+        //*====== start : fungsi untuk duplikasi =====*
+
+        // ini untuk duplikasi gambar jika , jadi pada saat upload 2 file, yaang 1 asilnya , dan yang 1 ada nama thumnya,
+        // untuk gambar duplikasi ini bisa di atur ukuraan / resolusinya, 
+        // jika tidak ingin ada duplikasi silahkan di nonaktifkan script dibawah ini
+
+        $config2['image_library']    = 'gd2';
+        $config2['source_image']     = './assets/gambar/'.$images_field['file_name'];
+        $config2['create_thumb']     = TRUE;
+        $config2['maintain_ratio']   = TRUE;
+        $config2['width']            = 150;
+        $config2['height']           = 150;
+
+        $this->load->library('image_lib', $config2);
+        $this->image_lib->resize();
+
+        //*====== end : fungsi untuk duplikasi =====*
+
+    }
+    else{
+        $nama_gambar = $this->input->post('gbr_album_edit');
+        // nah di form edit, buat 1 textfield hidden, valuenya nama file nya yang asli databse,
+        /// jika tidak ada file yang di upload maka , akan tersimpan yang nama file aslinya,
+        // jika ada file yang di upload maka file yang diupload lah akan disimpan, di atas 
+    }
+
+        // ini fungsi simpan file ke database 
+        $data = $this->file_model->nama_function_model_update($data,$nama_gambar);
+    	echo json_encode($data);
+
+}
+
+?>
